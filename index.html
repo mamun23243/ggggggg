@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💕 Riya — My AI Girlfriend</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e;
+  --accent:#ff6b9d; --accent2:#ff9a76;
+  --card:rgba(255,255,255,.07); --border:rgba(255,255,255,.14);
+  --text:#f5f0ff; --dim:#b9a9d9;
+  --bubble-user:linear-gradient(135deg,#ff6b9d,#ff8e7a);
+  --bubble-bot:rgba(255,255,255,.09);
+  --shadow:0 20px 60px rgba(0,0,0,.5);
+}
+body[data-theme="light"]{
+  --bg1:#ffdde1; --bg2:#ee9ca7; --bg3:#fbc2eb;
+  --card:rgba(255,255,255,.55); --border:rgba(255,255,255,.7);
+  --text:#3a2b45; --dim:#8a6f9e;
+  --bubble-bot:rgba(255,255,255,.8);
+  --shadow:0 20px 60px rgba(180,80,120,.25);
+}
+body[data-theme="pink"]{
+  --bg1:#2a0f1f; --bg2:#5c1f3e; --bg3:#3d1230;
+  --accent:#ff4f8b; --accent2:#ffb3c6;
+  --dim:#d9a0bd;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Hind Siliguri','Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+  background-size:300% 300%;
+  animation:bgShift 18s ease infinite;
+  min-height:100vh;min-height:100dvh;
+  display:flex;justify-content:center;align-items:center;
+  color:var(--text);overflow:hidden;transition:background 1s;
+}
+@keyframes bgShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hearts{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.heart{position:absolute;bottom:-60px;opacity:.12;animation:floatUp linear infinite}
+@keyframes floatUp{
+  0%{transform:translateY(0) rotate(0deg);opacity:.12}
+  100%{transform:translateY(-115vh) rotate(30deg);opacity:0}
+}
+.chat-container{
+  position:relative;z-index:1;
+  width:420px;max-width:96%;
+  height:680px;max-height:94dvh;
+  background:var(--card);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border);border-radius:28px;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:pop .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop{from{transform:scale(.92) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.header{
+  padding:16px 18px 10px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);background:rgba(0,0,0,.12);
+}
+.avatar{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 4px 14px rgba(255,107,157,.4);animation:pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 4px 14px rgba(255,107,157,.4)}50%{box-shadow:0 4px 24px rgba(255,107,157,.75)}}
+.header-info{flex:1;min-width:0}
+.header-info h2{font-size:17px;font-weight:700}
+.status{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:5px}
+.status::before{content:'';width:8px;height:8px;border-radius:50%;background:#2ecc71;box-shadow:0 0 8px #2ecc71;animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.icon-btn{
+  width:36px;height:36px;border-radius:12px;border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:.2s;
+}
+.icon-btn:hover{background:rgba(255,107,157,.25);transform:translateY(-2px)}
+.moods{display:flex;gap:6px;padding:10px 14px 4px;overflow-x:auto;scrollbar-width:none}
+.moods::-webkit-scrollbar{display:none}
+.pill{
+  flex-shrink:0;padding:6px 13px;border-radius:20px;font-size:12.5px;cursor:pointer;
+  border:1px solid var(--border);background:var(--card);color:var(--dim);transition:.2s;white-space:nowrap;
+}
+.pill:hover{color:var(--text);border-color:var(--accent)}
+.pill.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(255,107,157,.4);
+}
+.messages{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.messages::-webkit-scrollbar{width:5px}
+.messages::-webkit-scrollbar-thumb{background:var(--accent);border-radius:10px}
+.msg{display:flex;gap:9px;max-width:88%;animation:fadeUp .35s ease}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.msg-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.msg.user .msg-avatar{background:rgba(255,255,255,.2)}
+.bubble{
+  padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.55;
+  word-wrap:break-word;white-space:pre-wrap;
+  background:var(--bubble-bot);border:1px solid var(--border);border-bottom-left-radius:5px;
+}
+.msg.user .bubble{
+  background:var(--bubble-user);color:#fff;border:none;
+  border-bottom-right-radius:5px;border-bottom-left-radius:18px;
+  box-shadow:0 4px 16px rgba(255,107,157,.35);
+}
+.bubble .time{display:block;font-size:10px;color:var(--dim);margin-top:5px;text-align:right;opacity:.85}
+.msg.user .bubble .time{color:rgba(255,255,255,.75)}
+.typing{display:flex;align-items:center;gap:4px;padding:12px 8px;width:fit-content}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1}}
+.chips{display:flex;gap:6px;padding:2px 14px 8px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0;font-size:12px;padding:6px 12px;border-radius:16px;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);color:var(--dim);transition:.2s;
+}
+.chip:hover{color:var(--text);border-color:var(--accent);background:rgba(255,107,157,.15)}
+.input-area{display:flex;align-items:center;gap:8px;padding:10px 12px 14px;border-top:1px solid var(--border);background:rgba(0,0,0,.1)}
+.input-area input{
+  flex:1;padding:12px 16px;border-radius:24px;border:1.5px solid var(--border);
+  background:rgba(255,255,255,.07);color:var(--text);font-size:14px;outline:none;transition:.2s;min-width:0;
+}
+.input-area input::placeholder{color:var(--dim)}
+.input-area input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,107,157,.15)}
+.send-btn{
+  width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-size:18px;transition:.2s;box-shadow:0 4px 16px rgba(255,107,157,.4);
+  display:flex;align-items:center;justify-content:center;
+}
+.send-btn:hover{transform:scale(1.08)}
+.send-btn:active{transform:scale(.95)}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.mic-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:15px;cursor:pointer;flex-shrink:0;transition:.2s}
+.mic-btn.listening{background:var(--accent);color:#fff;animation:pulse 1s infinite}
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:#2c1b3f;color:#fff;padding:11px 20px;border-radius:14px;font-size:13.5px;
+  border:1px solid rgba(255,255,255,.15);box-shadow:0 10px 30px rgba(0,0,0,.4);
+  transition:.35s;z-index:60;opacity:0;max-width:90%;text-align:center;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+<div class="hearts" id="hearts"></div>
+
+<div class="chat-container">
+  <div class="header">
+    <div class="avatar">🌸</div>
+    <div class="header-info">
+      <h2>Riya 💕</h2>
+      <span class="status">অনলাইন · তোমার জন্য</span>
+    </div>
+    <button class="icon-btn" title="থিম বদলাও" onclick="cycleTheme()">🎨</button>
+    <button class="icon-btn" title="চ্যাট মুছো" onclick="clearChat()">🗑️</button>
+  </div>
+
+  <div class="moods" id="moods"></div>
+  <div class="messages" id="messages"></div>
+  <div class="chips" id="chips"></div>
+
+  <div class="input-area">
+    <button class="mic-btn" id="micBtn" title="ভয়েস মেসেজ">🎤</button>
+    <input type="text" id="userInput" placeholder="কিছু বলো বাবু... 💕" autocomplete="off">
+    <button class="send-btn" id="sendBtn" title="পাঠাও">➤</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ================= কনফিগ =================
+// ⚠️ API key আর সিস্টেম প্রম্পট এই ফাইলে নেই!
+//    সব আছে proxy.php ফাইলে (সার্ভারে) — কেউ সোর্স দেখলেও কিছুই পাবে না।
+const DEFAULT_MODEL = "gemini-2.0-flash";
+const MAX_CONTEXT = 24;   // API-তে পাঠানো শেষ কতগুলো মেসেজ
+const MAX_SAVED = 60;     // localStorage-এ কতগুলো মেসেজ রাখব
+
+const MOODS = {
+  romantic: { label: "💘 রোমান্টিক" },
+  loving:   { label: "🤗 ভালোবাসার" },
+  playful:  { label: "😜 খেলাচ্ছলে" },
+  adult:    { label: "🔥 ম্যাচিউর" }
+};
+
+const CHIPS = ["আজ কেমন আছো? ❤️","কী করছো জান?","ভালোবাসি তোমায় 🥺","একটা গল্প শোনাও","আজ খুব মিস করছি তোমাকে 💕","আজ রাতে কী পরবে? 😏"];
+
+// ================= স্টেট =================
+let settings = {
+  mood: "romantic", temp: 0.9, tokens: 250, theme: "dark"
+};
+let history = []; // {role:'user'|'model', text, ts}
+let busy = false;
+
+// ================= স্টোরেজ =================
+function saveState(){
+  try{
+    localStorage.setItem("riya_settings", JSON.stringify(settings));
+    localStorage.setItem("riya_history", JSON.stringify(history));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem("riya_settings"));
+    if(s){
+      delete s.apiKey;   // পুরনো ভার্সনের সেভ করা key থাকলে মুছে দিই
+      delete s.prompt;   // পুরনো ভার্সনের prompt থাকলে মুছে দিই
+      delete s.model;
+      settings = {...settings, ...s};
+      if(!MOODS[settings.mood]) settings.mood = "romantic";
+    }
+    const h = JSON.parse(localStorage.getItem("riya_history"));
+    if(Array.isArray(h)) history = h;
+  }catch(e){}
+}
+
+// ================= UI হেল্পার =================
+const $ = id => document.getElementById(id);
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove("show"), 2600);
+}
+function fmtTime(d){ return d.toLocaleTimeString("bn-BD", {hour:"2-digit", minute:"2-digit"}); }
+function escapeHtml(t){
+  return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function addMessage(text, sender, save=true){
+  const wrap = document.createElement("div");
+  wrap.className = `msg ${sender}`;
+  const avatar = sender === "bot" ? "🌸" : "😊";
+  wrap.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="bubble">${escapeHtml(text)}<span class="time">${fmtTime(new Date())}</span></div>`;
+  $("messages").appendChild(wrap);
+  $("messages").scrollTop = $("messages").scrollHeight;
+  if(save){
+    history.push({role: sender === "bot" ? "model" : "user", text, ts: Date.now()});
+    if(history.length > MAX_SAVED) history = history.slice(-MAX_SAVED);
+    saveState();
+  }
+  return wrap;
+}
+function renderHistory(){
+  const m = $("messages");
+  m.innerHTML = "";
+  history.forEach(h=>{
+    const wrap = document.createElement("div");
+    wrap.className = `msg ${h.role === "model" ? "bot" : "user"}`;
+    const avatar = h.role === "model" ? "🌸" : "😊";
+    const time = fmtTime(new Date(h.ts || Date.now()));
+    wrap.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="bubble">${escapeHtml(h.text)}<span class="time">${time}</span></div>`;
+    m.appendChild(wrap);
+  });
+  m.scrollTop = m.scrollHeight;
+}
+
+// ================= মুড, থিম, চিপস =================
+function buildMoods(){
+  const box = $("moods");
+  box.innerHTML = "";
+  Object.entries(MOODS).forEach(([key, m])=>{
+    const p = document.createElement("button");
+    p.className = "pill" + (settings.mood === key ? " active" : "");
+    p.textContent = m.label;
+    p.onclick = ()=>{
+      settings.mood = key;
+      buildMoods(); saveState();
+      toast(`মুড: ${m.label} 💕`);
+    };
+    box.appendChild(p);
+  });
+}
+function buildChips(){
+  const box = $("chips");
+  box.innerHTML = "";
+  CHIPS.forEach(c=>{
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = c;
+    b.onclick = ()=>{ $("userInput").value = c; sendMessage(); };
+    box.appendChild(b);
+  });
+}
+const THEMES = ["dark","light","pink"];
+function applyTheme(t){
+  document.body.dataset.theme = t;
+  settings.theme = t;
+  saveState();
+}
+function cycleTheme(){
+  const i = THEMES.indexOf(settings.theme);
+  const next = THEMES[(i+1)%THEMES.length];
+  applyTheme(next);
+  toast(next === "dark" ? "🌙 ডার্ক মোড" : next === "light" ? "☀️ লাইট মোড" : "🌸 পিংক মোড");
+}
+
+// ================= ফ্লোটিং হার্টস =================
+function makeHearts(){
+  const emojis = ["❤️","💕","💖","🌸","💗","🌹"];
+  for(let i=0;i<14;i++){
+    const h = document.createElement("span");
+    h.className = "heart";
+    h.textContent = emojis[i%emojis.length];
+    h.style.left = Math.random()*100 + "%";
+    h.style.fontSize = (14 + Math.random()*22) + "px";
+    h.style.animationDuration = (8 + Math.random()*10) + "s";
+    h.style.animationDelay = (Math.random()*10) + "s";
+    $("hearts").appendChild(h);
+  }
+}
+
+// ================= টাইপিং ইন্ডিকেটর =================
+function showTyping(){
+  const m = $("messages");
+  const wrap = document.createElement("div");
+  wrap.className = "msg bot";
+  wrap.id = "typingMsg";
+  wrap.innerHTML = `<div class="msg-avatar">🌸</div><div class="typing"><span></span><span></span><span></span></div>`;
+  m.appendChild(wrap);
+  m.scrollTop = m.scrollHeight;
+}
+function hideTyping(){ const t = $("typingMsg"); if(t) t.remove(); }
+
+// ================= GEMINI API (proxy দিয়ে) =================
+async function callGemini(messages){
+  const res = await fetch("proxy.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      mood: settings.mood,
+      temp: settings.temp,
+      tokens: settings.tokens,
+      contents: messages
+    })
+  });
+  if(!res.ok){
+    let msg = "API এরর " + res.status;
+    try{ const e = await res.json(); msg = e.error?.message || msg; }catch(e){}
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text).join("") || "";
+  if(!text) throw new Error("খালি রিপ্লাই — মডেল কনটেন্ট ব্লক করেছে");
+  return text;
+}
+
+// ================= মেসেজ পাঠানো =================
+async function sendMessage(){
+  const input = $("userInput");
+  const text = input.value.trim();
+  if(!text || busy) return;
+
+  addMessage(text, "user");
+  input.value = "";
+  busy = true;
+  $("sendBtn").disabled = true;
+  showTyping();
+
+  try{
+    const ctx = history.slice(-MAX_CONTEXT);
+    const reply = await callGemini(ctx);
+    hideTyping();
+    addMessage(reply, "bot");
+  }catch(err){
+    hideTyping();
+    addMessage("⚠️ " + err.message, "bot", false);
+    toast("কিছু সমস্যা হয়েছে 🥺");
+  }finally{
+    busy = false;
+    $("sendBtn").disabled = false;
+  }
+}
+
+// ================= ভয়েস ইনপুট =================
+let rec = null, listening = false;
+function toggleMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ toast("এই ব্রাউজারে ভয়েস সাপোর্ট নেই 😢"); return; }
+  if(listening){ rec.stop(); return; }
+  try{
+    rec = new SR();
+    rec.lang = "bn-BD";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    rec.onresult = e=>{
+      $("userInput").value = e.results[0][0].transcript;
+      listening = false; $("micBtn").classList.remove("listening");
+    };
+    rec.onerror = ()=>{
+      listening = false; $("micBtn").classList.remove("listening");
+      toast("ভয়েস চেনা যায়নি, টাইপ করে দাও 🥺");
+    };
+    rec.onend = ()=>{ listening = false; $("micBtn").classList.remove("listening"); };
+    rec.start();
+    listening = true;
+    $("micBtn").classList.add("listening");
+    toast("বলো বাবু, শুনছি 🎤");
+  }catch(e){ toast("মাইক্রোফোন অ্যাক্সেস নেই"); }
+}
+
+// ================= চ্যাট মুছো =================
+function clearChat(){
+  if(!confirm("চ্যাট হিস্ট্রি মুছবে?")) return;
+  history = [];
+  renderHistory();
+  addMessage("হ্যালো আমার জীবন ❤️ কেমন আছো আজ?", "bot");
+  saveState();
+  toast("চ্যাট ক্লিয়ার ✨");
+}
+
+// ================= ইভেন্ট =================
+$("sendBtn").onclick = sendMessage;
+$("userInput").addEventListener("keydown", e => { if(e.key === "Enter") sendMessage(); });
+$("micBtn").onclick = toggleMic;
+
+// ================= ইনিট =================
+loadState();
+applyTheme(settings.theme);
+buildMoods();
+buildChips();
+makeHearts();
+if(history.length === 0){
+  addMessage("হ্যালো আমার জীবন ❤️ কেমন আছো আজ?", "bot");
+}else{
+  renderHistory();
+}
+</script>
+</body>
+</html>
