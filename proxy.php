@@ -1,14 +1,19 @@
 <?php
-/**
- * proxy.php — Riya-র Gemini API proxy
- */
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    header('Content-Type: application/json');
+    echo json_encode(array('error' => array('message' => 'মেথড অনুমোদিত নয় (Only POST standard allowed)')));
+    exit;
+}
 // ================= আপনার API Key =================
 $GEMINI_KEY = 'AQ.Ab8RN6LjveJcgLCsLFdQAJY93iiFbHRgPTeSrVVGMwQr3eyr0Q'; // 👈 আপনার API Key এখানে দিন
 $MODEL = 'gemini-2.0-flash';
